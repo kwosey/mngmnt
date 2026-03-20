@@ -83,6 +83,45 @@ export function getJournalStreak(): number {
   return streak;
 }
 
+// ─── Bookmarks ────────────────────────────────────────────────────────────────
+
+export interface Bookmark {
+  id: string;
+  url: string;
+  title: string;
+  note: string;
+  date: string; // "YYYY-MM-DD"
+}
+
+export function getBookmarks(): Bookmark[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem("bookmarks");
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function addBookmark(data: Pick<Bookmark, "url" | "title" | "note">): Bookmark {
+  const bookmark: Bookmark = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    url: data.url,
+    title: data.title,
+    note: data.note,
+    date: todayStr(),
+  };
+  const bookmarks = getBookmarks();
+  bookmarks.unshift(bookmark);
+  localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+  return bookmark;
+}
+
+export function deleteBookmark(id: string): void {
+  const bookmarks = getBookmarks().filter((b) => b.id !== id);
+  localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function todayStr(): string {

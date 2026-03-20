@@ -74,9 +74,9 @@ export default function FlashcardsPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="max-w-2xl mx-auto px-6 py-12">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Header */}
-        <div className="flex items-start justify-between mb-8">
+        <div className="flex items-start justify-between mb-7 sm:mb-8 animate-in">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-1">
               Карточки
@@ -88,13 +88,13 @@ export default function FlashcardsPage() {
 
           {/* Progress bar */}
           <div className="flex flex-col items-end gap-1.5 pt-1">
-            <div className="w-24 h-1.5 rounded-full bg-secondary overflow-hidden">
+            <div className="w-20 sm:w-24 h-1.5 rounded-full bg-secondary overflow-hidden">
               <div
                 className="h-full rounded-full bg-foreground transition-all duration-500"
                 style={{ width: `${progressPct}%` }}
               />
             </div>
-            <span className="text-xs text-muted-foreground">{progressPct}%</span>
+            <span className="text-xs text-muted-foreground tabular-nums">{progressPct}%</span>
           </div>
         </div>
 

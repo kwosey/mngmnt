@@ -23,9 +23,9 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-6 py-10">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
         {/* Title */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8 animate-in">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-1">
             Management OS
           </h1>
@@ -35,34 +35,34 @@ export default function HomePage() {
         </div>
 
         {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3 mb-10">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-8 sm:mb-10 animate-in" style={{ animationDelay: "40ms" }}>
           <Link href="/journal">
-            <div className={`rounded-lg border p-4 cursor-pointer transition-colors hover:border-muted-foreground/40 ${hasToday ? "border-border" : "border-dashed border-border"}`}>
-              <div className="text-xl font-bold text-foreground mb-0.5">
+            <div className={`rounded-lg border p-3 sm:p-4 cursor-pointer transition-all hover:border-muted-foreground/40 hover:bg-secondary/30 ${hasToday ? "border-border" : "border-dashed border-border"}`}>
+              <div className="text-lg sm:text-xl font-bold text-foreground mb-0.5 tabular-nums">
                 {streak > 0 ? streak : "—"}
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-[11px] sm:text-xs text-muted-foreground leading-4">
                 {streak > 0
                   ? (streak === 1 ? "день подряд" : streak < 5 ? "дня подряд" : "дней подряд")
                   : "Дневник"}
               </div>
               {!hasToday && (
-                <div className="text-xs text-muted-foreground/60 mt-1">
-                  Не заполнен сегодня
+                <div className="hidden sm:block text-xs text-muted-foreground/50 mt-1">
+                  Не заполнен
                 </div>
               )}
             </div>
           </Link>
 
           <Link href="/flashcards">
-            <div className="rounded-lg border border-border p-4 cursor-pointer transition-colors hover:border-muted-foreground/40">
-              <div className="text-xl font-bold text-foreground mb-0.5">
+            <div className="rounded-lg border border-border p-3 sm:p-4 cursor-pointer transition-all hover:border-muted-foreground/40 hover:bg-secondary/30">
+              <div className="text-lg sm:text-xl font-bold text-foreground mb-0.5 tabular-nums">
                 {learnedCount}/{totalCount}
               </div>
-              <div className="text-xs text-muted-foreground">Изучено концептов</div>
-              <div className="mt-2 h-1 rounded-full bg-secondary overflow-hidden">
+              <div className="text-[11px] sm:text-xs text-muted-foreground leading-4">Изучено</div>
+              <div className="mt-2 h-0.5 sm:h-1 rounded-full bg-secondary overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-foreground/40 transition-all"
+                  className="h-full rounded-full bg-foreground/40 transition-all duration-500"
                   style={{ width: `${(learnedCount / totalCount) * 100}%` }}
                 />
               </div>
@@ -70,15 +70,15 @@ export default function HomePage() {
           </Link>
 
           <Link href="/situation">
-            <div className="rounded-lg border border-border p-4 cursor-pointer transition-colors hover:border-muted-foreground/40">
-              <div className="text-xl font-bold text-foreground mb-0.5">→</div>
-              <div className="text-xs text-muted-foreground">Разобрать ситуацию</div>
+            <div className="rounded-lg border border-border p-3 sm:p-4 cursor-pointer transition-all hover:border-muted-foreground/40 hover:bg-secondary/30">
+              <div className="text-lg sm:text-xl font-bold text-foreground mb-0.5">→</div>
+              <div className="text-[11px] sm:text-xs text-muted-foreground leading-4">Разобрать ситуацию</div>
             </div>
           </Link>
         </div>
 
         {/* Concept list */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-3 sm:mb-4 animate-in" style={{ animationDelay: "80ms" }}>
           <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
             Концепты
           </h2>
@@ -87,12 +87,12 @@ export default function HomePage() {
           </Button>
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1.5 sm:gap-2 animate-in" style={{ animationDelay: "100ms" }}>
           {concepts.map((concept) => {
             const isLearned = learned.has(concept.id);
             return (
               <Link key={concept.id} href={`/concept/${concept.id}`} className="group">
-                <div className="flex items-start gap-3 rounded-lg border border-border px-4 py-3 transition-colors hover:bg-secondary/40 cursor-pointer">
+                <div className="flex items-start gap-3 rounded-lg border border-border px-3 sm:px-4 py-2.5 sm:py-3 transition-colors hover:bg-secondary/40 cursor-pointer">
                   <span
                     className={`mt-0.5 text-xs shrink-0 ${
                       isLearned ? "text-foreground/60" : "text-muted-foreground/30"
