@@ -30,13 +30,13 @@ export default function ConceptPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="max-w-2xl mx-auto px-6 py-12">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <div className="mb-8">
           <Button asChild variant="ghost" size="sm" className="mb-6 -ml-2 text-muted-foreground">
             <Link href="/">← Все концепты</Link>
           </Button>
-          <div className="flex items-start justify-between gap-4">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+          <div className="flex items-start justify-between gap-3 sm:gap-4">
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
               {concept.title}
             </h1>
             <button
