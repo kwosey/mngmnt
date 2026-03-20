@@ -101,7 +101,7 @@ export default function HomePage() {
               </Link>
             </div>
 
-            <div className="flex flex-col gap-2 overflow-y-auto flex-1" style={{ maxHeight: "380px" }}>
+            <div className="concepts-list flex flex-col gap-2 overflow-y-auto">
               {concepts.map((concept, i) => {
                 const isLearned = learned.has(concept.id);
                 const color = CONCEPT_COLORS[i % CONCEPT_COLORS.length];
@@ -142,8 +142,8 @@ export default function HomePage() {
           {/* ── Journal — top right ── */}
           <Link href="/journal" className="bento-journal block group">
             <div
-              className="rounded-[20px] p-5 h-full flex flex-col transition-transform group-hover:scale-[1.02]"
-              style={{ background: "var(--card)", boxShadow: "0 2px 20px 0 rgba(80,70,140,0.08)" }}
+              className="rounded-[20px] p-5 flex flex-col transition-transform group-hover:scale-[1.02]"
+              style={{ background: "var(--card)", boxShadow: "0 2px 20px 0 rgba(80,70,140,0.08)", minHeight: "200px" }}
             >
               <div className="mb-2" style={{ color: "var(--accent)" }}>
                 <JournalIcon />
@@ -185,8 +185,8 @@ export default function HomePage() {
           {/* ── Flashcards — bottom right ── */}
           <Link href="/flashcards" className="bento-cards block group">
             <div
-              className="rounded-[20px] p-5 h-full flex flex-col transition-transform group-hover:scale-[1.02]"
-              style={{ background: "var(--card)", boxShadow: "0 2px 20px 0 rgba(80,70,140,0.08)" }}
+              className="rounded-[20px] p-5 flex flex-col transition-transform group-hover:scale-[1.02]"
+              style={{ background: "var(--card)", boxShadow: "0 2px 20px 0 rgba(80,70,140,0.08)", minHeight: "200px" }}
             >
               <div className="mb-2" style={{ color: "var(--accent)" }}>
                 <FlashcardsIcon />
