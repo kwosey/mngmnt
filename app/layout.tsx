@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { Header } from "@/components/Header";
 
 export const metadata: Metadata = {
   title: "Management OS",
@@ -13,7 +15,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ThemeProvider>
+          <Header />
+          <div className="flex-1">{children}</div>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
