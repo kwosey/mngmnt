@@ -79,7 +79,7 @@ export default function HomePage() {
         <div className="bento-grid animate-in" style={{ animationDelay: "40ms" }}>
           {/* ── Concepts — big card, left 2 cols × 2 rows ── */}
           <div
-            className="bento-concepts rounded-[20px] p-5 sm:p-6 flex flex-col"
+            className="bento-concepts rounded-[20px] p-5 sm:p-6 flex flex-col overflow-hidden"
             style={{ background: "var(--card)", boxShadow: "0 2px 20px 0 rgba(80,70,140,0.08)" }}
           >
             <div className="flex items-start justify-between mb-4">
@@ -108,7 +108,7 @@ export default function HomePage() {
                 return (
                   <Link key={concept.id} href={`/concept/${concept.id}`} className="group block">
                     <div
-                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors"
+                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors min-w-0 overflow-hidden"
                       style={{
                         border: "1px solid var(--border)",
                         background: isLearned ? "var(--secondary)" : "transparent",
