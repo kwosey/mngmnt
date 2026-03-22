@@ -122,6 +122,51 @@ export function deleteBookmark(id: string): void {
   localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
 }
 
+// ─── Stage todos ──────────────────────────────────────────────────────────────
+
+export interface StageTodo {
+  id: string;
+  text: string;
+  done: boolean;
+}
+
+function stageTodosKey(stageId: string) {
+  return `stage_todos_${stageId}`;
+}
+
+export function getStageTodos(stageId: string): StageTodo[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(stageTodosKey(stageId));
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveStageTodos(stageId: string, todos: StageTodo[]): void {
+  localStorage.setItem(stageTodosKey(stageId), JSON.stringify(todos));
+}
+
+export function addStageTodo(stageId: string, text: string): StageTodo {
+  const todo: StageTodo = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    text,
+    done: false,
+  };
+  saveStageTodos(stageId, [...getStageTodos(stageId), todo]);
+  return todo;
+}
+
+export function updateStageTodo(stageId: string, id: string, updates: Partial<Pick<StageTodo, "text" | "done">>): void {
+  const todos = getStageTodos(stageId).map(t => t.id === id ? { ...t, ...updates } : t);
+  saveStageTodos(stageId, todos);
+}
+
+export function deleteStageTodo(stageId: string, id: string): void {
+  saveStageTodos(stageId, getStageTodos(stageId).filter(t => t.id !== id));
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function todayStr(): string {
