@@ -5,6 +5,118 @@ import { useEffect, useState } from "react";
 import { concepts } from "@/lib/data";
 import { getLearnedConcepts, getJournalStreak, getTodayEntry } from "@/lib/storage";
 
+const ROLE_START = new Date("2026-04-10T00:00:00");
+
+const PHASES = [
+  {
+    days: [1, 30],
+    label: "Слушать и наблюдать",
+    tip: "Задавай вопросы — не давай советов. Твоя цель сейчас понять, а не менять.",
+    conceptId: "psychological-safety",
+    conceptTitle: "Psychological Safety",
+    color: "#8b5cf6",
+  },
+  {
+    days: [31, 60],
+    label: "Строить доверие",
+    tip: "Первые честные разговоры. Говори прямо и с заботой — это и есть основа.",
+    conceptId: "radical-candor",
+    conceptTitle: "Radical Candor",
+    color: "#3b82f6",
+  },
+  {
+    days: [61, 90],
+    label: "Действовать",
+    tip: "Пора делать — первые решения требуют смелости. Делегируй осознанно.",
+    conceptId: "ownership",
+    conceptTitle: "Ownership",
+    color: "#22c55e",
+  },
+];
+
+function getRoleDay() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const start = new Date(ROLE_START);
+  start.setHours(0, 0, 0, 0);
+  return Math.floor((today.getTime() - start.getTime()) / 86400000);
+}
+
+function JourneyBanner() {
+  const day = getRoleDay();
+
+  if (day < 0) {
+    const daysLeft = -day;
+    const totalPre = Math.floor((ROLE_START.getTime() - new Date("2026-03-22T00:00:00").getTime()) / 86400000);
+    const elapsed = totalPre - daysLeft;
+    const pct = Math.max(0, Math.min(100, Math.round((elapsed / totalPre) * 100)));
+    return (
+      <Link href="/concept/first-90-days" className="block mb-5 animate-in rounded-[20px] p-5 group" style={{ background: "var(--card)", boxShadow: "0 2px 20px 0 rgba(80,70,140,0.08)" }}>
+        <div className="flex items-start justify-between gap-4 mb-3">
+          <div>
+            <div className="text-xs font-medium mb-0.5" style={{ color: "var(--muted-foreground)" }}>До начала роли</div>
+            <div className="text-2xl font-bold tabular-nums" style={{ color: "var(--foreground)" }}>
+              {daysLeft} {daysLeft === 1 ? "день" : daysLeft < 5 ? "дня" : "дней"}
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <div className="text-xs font-medium mb-0.5" style={{ color: "var(--muted-foreground)" }}>10 апреля</div>
+            <div className="text-sm font-semibold" style={{ color: "var(--accent)" }}>Старт →</div>
+          </div>
+        </div>
+        <div className="h-1.5 rounded-full overflow-hidden mb-3" style={{ background: "var(--secondary)" }}>
+          <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: "var(--accent)" }} />
+        </div>
+        <div className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+          Используй время — изучи команду, прочитай про <span className="font-medium" style={{ color: "var(--foreground)" }}>первые 90 дней</span>
+        </div>
+      </Link>
+    );
+  }
+
+  if (day >= 90) {
+    return (
+      <div className="block mb-5 animate-in rounded-[20px] p-5" style={{ background: "var(--card)", boxShadow: "0 2px 20px 0 rgba(80,70,140,0.08)" }}>
+        <div className="text-xs font-medium mb-1" style={{ color: "var(--muted-foreground)" }}>Первые 90 дней</div>
+        <div className="text-base font-semibold" style={{ color: "#22c55e" }}>Пройдены ✓</div>
+        <div className="h-1.5 rounded-full mt-3 overflow-hidden" style={{ background: "var(--secondary)" }}>
+          <div className="h-full rounded-full" style={{ width: "100%", background: "#22c55e" }} />
+        </div>
+      </div>
+    );
+  }
+
+  const phase = PHASES.find(p => day + 1 >= p.days[0] && day + 1 <= p.days[1])!;
+  const pct = Math.round(((day + 1) / 90) * 100);
+
+  return (
+    <div className="mb-5 animate-in rounded-[20px] p-5" style={{ background: "var(--card)", boxShadow: "0 2px 20px 0 rgba(80,70,140,0.08)" }}>
+      <div className="flex items-start justify-between gap-4 mb-3">
+        <div>
+          <div className="text-xs font-medium mb-0.5" style={{ color: "var(--muted-foreground)" }}>Сейчас</div>
+          <div className="text-lg font-bold" style={{ color: phase.color }}>{phase.label}</div>
+        </div>
+        <div className="text-right shrink-0">
+          <div className="text-xs font-medium mb-0.5" style={{ color: "var(--muted-foreground)" }}>из 90 дней</div>
+          <div className="text-2xl font-bold tabular-nums" style={{ color: "var(--foreground)" }}>День {day + 1}</div>
+        </div>
+      </div>
+      <div className="h-1.5 rounded-full overflow-hidden mb-3" style={{ background: "var(--secondary)" }}>
+        <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: phase.color }} />
+      </div>
+      <p className="text-xs mb-3" style={{ color: "var(--muted-foreground)" }}>{phase.tip}</p>
+      <Link
+        href={`/concept/${phase.conceptId}`}
+        className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg transition-opacity hover:opacity-70"
+        style={{ background: "var(--secondary)", color: "var(--foreground)" }}
+      >
+        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: phase.color }} />
+        Концепт дня: {phase.conceptTitle} →
+      </Link>
+    </div>
+  );
+}
+
 const CONCEPT_COLORS = [
   "#22c55e",
   "#f97316",
@@ -75,6 +187,8 @@ export default function HomePage() {
             Персональный инструмент нового тимлида
           </p>
         </div>
+
+        <JourneyBanner />
 
         <div className="bento-grid animate-in" style={{ animationDelay: "40ms" }}>
           {/* ── Concepts — big card, left 2 cols × 2 rows ── */}
