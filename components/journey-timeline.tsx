@@ -241,10 +241,19 @@ export function JourneyTimeline() {
   function commitFieldEdit(stageId: string, field: "label" | "desc") {
     const text = fieldText.trim();
     setEditingField(null);
-    if (!text) return;
 
     const storageField = field === "label" ? "label" : "description";
     const isCustom = customStages.some(s => s.id === stageId);
+
+    // Clearing label on a custom stage — delete it
+    if (!text && field === "label" && isCustom) {
+      const updated = customStages.filter(s => s.id !== stageId);
+      saveCustomStages(updated);
+      setCustomStages(updated);
+      return;
+    }
+
+    if (!text) return;
 
     if (isCustom) {
       const updated = customStages.map(s => s.id === stageId ? { ...s, [storageField]: text } : s);
@@ -440,20 +449,6 @@ export function JourneyTimeline() {
                       </span>
                     )}
                   </div>
-
-                  {/* Reflection question — only for active built-in stage */}
-                  {isActive && stage.question && (
-                    <div
-                      className="mt-2 text-xs italic px-3 py-2 rounded-xl"
-                      style={{
-                        background: "var(--secondary)",
-                        color: "var(--muted-foreground)",
-                        borderLeft: "2px solid var(--accent)",
-                      }}
-                    >
-                      {stage.question}
-                    </div>
-                  )}
 
                   <StageTodos stageId={stage.id} />
                 </div>
