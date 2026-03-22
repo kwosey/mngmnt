@@ -124,10 +124,8 @@ body {
   grid-template-rows: auto;
 }
 
-.bento-grid > .bento-concepts  { order: 1; }
-.bento-grid > .bento-journal   { order: 2; }
-.bento-grid > .bento-cards     { order: 3; }
-.bento-grid > .bento-situation { order: 4; }
+.bento-grid > .bento-concepts   { order: 1; }
+.bento-grid > .bento-bookmarks  { order: 2; }
 
 /* On mobile: no max-height on concepts list — let it expand naturally */
 .bento-concepts .concepts-list { max-height: none; }
@@ -135,13 +133,11 @@ body {
 @media (min-width: 768px) {
   .bento-grid {
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto;
   }
-  .bento-grid > .bento-concepts  { grid-column: 1 / 3; grid-row: 1 / 3; order: unset; }
-  .bento-grid > .bento-journal   { grid-column: 3;     grid-row: 1;     order: unset; }
-  .bento-grid > .bento-cards     { grid-column: 3;     grid-row: 2;     order: unset; }
-  .bento-grid > .bento-situation { grid-column: 1 / 4; grid-row: 3;     order: unset; }
+  .bento-grid > .bento-concepts   { grid-column: 1 / 3; grid-row: 1; order: unset; }
+  .bento-grid > .bento-bookmarks  { grid-column: 3;     grid-row: 1; order: unset; }
 
-  /* On desktop: constrain concepts list height so card doesn't overflow its rows */
-  .bento-concepts .concepts-list { max-height: 380px; }
+  /* On desktop: constrain concepts list height */
+  .bento-concepts .concepts-list { max-height: 480px; }
 }
