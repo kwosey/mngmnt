@@ -39,7 +39,6 @@ const PHASES = [
 
 function JourneyBanner() {
   const day = getRoleDay();
-  const [open, setOpen] = useState(false);
 
   if (day < 0) {
     const daysLeft = -day;
@@ -55,25 +54,14 @@ function JourneyBanner() {
               {daysLeft} {daysLeft === 1 ? "день" : daysLeft < 5 ? "дня" : "дней"}
             </div>
           </div>
-          <div className="flex flex-col items-end gap-2 shrink-0">
-            <div className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>10 апреля</div>
-            <button
-              onClick={() => setOpen(v => !v)}
-              className="text-xs px-2.5 py-1 rounded-lg font-medium transition-opacity hover:opacity-70"
-              style={{ background: "var(--secondary)", color: "var(--muted-foreground)" }}
-            >
-              {open ? "Скрыть" : "Путь"}
-            </button>
-          </div>
+          <div className="text-xs font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>10 апреля</div>
         </div>
-        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--secondary)" }}>
+        <div className="h-1.5 rounded-full overflow-hidden mb-4" style={{ background: "var(--secondary)" }}>
           <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: "var(--accent)" }} />
         </div>
-        {open && (
-          <div className="mt-4 animate-slide-down" style={{ borderTop: "1px solid var(--border)" }}>
-            <JourneyTimeline />
-          </div>
-        )}
+        <div style={{ borderTop: "1px solid var(--border)" }}>
+          <JourneyTimeline />
+        </div>
       </div>
     );
   }
@@ -86,22 +74,13 @@ function JourneyBanner() {
             <div className="text-xs font-medium mb-1" style={{ color: "var(--muted-foreground)" }}>Первые 90 дней</div>
             <div className="text-base font-semibold" style={{ color: "#22c55e" }}>Пройдены</div>
           </div>
-          <button
-            onClick={() => setOpen(v => !v)}
-            className="text-xs px-2.5 py-1 rounded-lg font-medium transition-opacity hover:opacity-70 shrink-0"
-            style={{ background: "var(--secondary)", color: "var(--muted-foreground)" }}
-          >
-            {open ? "Скрыть" : "Путь"}
-          </button>
         </div>
-        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--secondary)" }}>
+        <div className="h-1.5 rounded-full overflow-hidden mb-4" style={{ background: "var(--secondary)" }}>
           <div className="h-full rounded-full" style={{ width: "100%", background: "#22c55e" }} />
         </div>
-        {open && (
-          <div className="mt-4 animate-slide-down" style={{ borderTop: "1px solid var(--border)" }}>
-            <JourneyTimeline />
-          </div>
-        )}
+        <div style={{ borderTop: "1px solid var(--border)" }}>
+          <JourneyTimeline />
+        </div>
       </div>
     );
   }
@@ -116,18 +95,9 @@ function JourneyBanner() {
           <div className="text-xs font-medium mb-0.5" style={{ color: "var(--muted-foreground)" }}>Сейчас</div>
           <div className="text-lg font-bold" style={{ color: phase.color }}>{phase.label}</div>
         </div>
-        <div className="flex flex-col items-end gap-2 shrink-0">
-          <div className="text-right">
-            <div className="text-xs font-medium mb-0.5" style={{ color: "var(--muted-foreground)" }}>из 90 дней</div>
-            <div className="text-2xl font-bold tabular-nums" style={{ color: "var(--foreground)" }}>День {day + 1}</div>
-          </div>
-          <button
-            onClick={() => setOpen(v => !v)}
-            className="text-xs px-2.5 py-1 rounded-lg font-medium transition-opacity hover:opacity-70"
-            style={{ background: "var(--secondary)", color: "var(--muted-foreground)" }}
-          >
-            {open ? "Скрыть" : "Путь"}
-          </button>
+        <div className="text-right shrink-0">
+          <div className="text-xs font-medium mb-0.5" style={{ color: "var(--muted-foreground)" }}>из 90 дней</div>
+          <div className="text-2xl font-bold tabular-nums" style={{ color: "var(--foreground)" }}>День {day + 1}</div>
         </div>
       </div>
       <div className="h-1.5 rounded-full overflow-hidden mb-3" style={{ background: "var(--secondary)" }}>
@@ -142,11 +112,9 @@ function JourneyBanner() {
         <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: phase.color }} />
         Концепт дня: {phase.conceptTitle} →
       </Link>
-      {open && (
-        <div className="mt-4 animate-slide-down" style={{ borderTop: "1px solid var(--border)" }}>
-          <JourneyTimeline />
-        </div>
-      )}
+      <div className="mt-4" style={{ borderTop: "1px solid var(--border)" }}>
+        <JourneyTimeline />
+      </div>
     </div>
   );
 }
