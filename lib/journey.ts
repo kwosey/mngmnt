@@ -6,9 +6,11 @@ export interface JourneyStage {
   question: string;
   /** day range from role start, inclusive. null = before start */
   dayRange: [number, number] | null;
+  /** days offset from role start (null = preparation stage) */
+  startOffset: number | null;
 }
 
-export const ROLE_START = new Date("2026-04-10T00:00:00");
+const DEFAULT_ROLE_START = "2026-04-10";
 
 export const JOURNEY_STAGES: JourneyStage[] = [
   {
@@ -17,7 +19,8 @@ export const JOURNEY_STAGES: JourneyStage[] = [
     period: "Сейчас",
     description: "Изучить команду, контекст, ожидания",
     question: "Я понимаю, куда я иду, или просто жду старта?",
-    dayRange: null, // before day 0
+    dayRange: null,
+    startOffset: null,
   },
   {
     id: "start",
@@ -26,6 +29,7 @@ export const JOURNEY_STAGES: JourneyStage[] = [
     description: "Первые разговоры, сбор сигналов",
     question: "Я больше слушаю или сразу начинаю менять?",
     dayRange: [0, 0],
+    startOffset: 0,
   },
   {
     id: "diagnosis",
@@ -34,6 +38,7 @@ export const JOURNEY_STAGES: JourneyStage[] = [
     description: "Понять людей, процессы, реальные проблемы",
     question: "Я действительно понимаю систему или делаю быстрые выводы?",
     dayRange: [1, 30],
+    startOffset: 1,
   },
   {
     id: "focus",
@@ -42,6 +47,7 @@ export const JOURNEY_STAGES: JourneyStage[] = [
     description: "Определить ключевые направления",
     question: "Я выбрал главное или распылился?",
     dayRange: [31, 60],
+    startOffset: 31,
   },
   {
     id: "change",
@@ -50,14 +56,31 @@ export const JOURNEY_STAGES: JourneyStage[] = [
     description: "Начать внедрять и закреплять решения",
     question: "Я внедряю изменения или просто обсуждаю их?",
     dayRange: [61, Infinity],
+    startOffset: 61,
   },
 ];
+
+export function getRoleStartDate(): Date {
+  if (typeof window === "undefined") return new Date(DEFAULT_ROLE_START + "T00:00:00");
+  try {
+    const raw = localStorage.getItem("role_start_date");
+    return new Date((raw ?? DEFAULT_ROLE_START) + "T00:00:00");
+  } catch {
+    return new Date(DEFAULT_ROLE_START + "T00:00:00");
+  }
+}
+
+export function setRoleStartDate(date: Date): void {
+  if (typeof window !== "undefined") {
+    localStorage.setItem("role_start_date", date.toISOString().split("T")[0]);
+  }
+}
 
 /** Returns the current role day (negative = before start) */
 export function getRoleDay(): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const start = new Date(ROLE_START);
+  const start = getRoleStartDate();
   start.setHours(0, 0, 0, 0);
   return Math.floor((today.getTime() - start.getTime()) / 86400000);
 }
@@ -72,4 +95,14 @@ export function getActiveStageId(): string {
     if (day >= min && day <= max) return stage.id;
   }
   return "change";
+}
+
+export function addDays(d: Date, n: number): Date {
+  const r = new Date(d);
+  r.setDate(r.getDate() + n);
+  return r;
+}
+
+export function formatRuDate(d: Date): string {
+  return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" });
 }

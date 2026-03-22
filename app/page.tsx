@@ -8,8 +8,6 @@ import type { Bookmark } from "@/lib/storage";
 import { JourneyTimeline } from "@/components/journey-timeline";
 import { getRoleDay } from "@/lib/journey";
 
-const ROLE_START = new Date("2026-04-10T00:00:00");
-
 const PHASES = [
   {
     days: [1, 30],
@@ -41,27 +39,9 @@ function JourneyBanner() {
   const day = getRoleDay();
 
   if (day < 0) {
-    const daysLeft = -day;
-    const totalPre = Math.floor((ROLE_START.getTime() - new Date("2026-03-22T00:00:00").getTime()) / 86400000);
-    const elapsed = totalPre - daysLeft;
-    const pct = Math.max(0, Math.min(100, Math.round((elapsed / totalPre) * 100)));
     return (
       <div className="mb-5 animate-in rounded-[20px] p-5" style={{ background: "var(--card)", boxShadow: "0 2px 20px 0 rgba(80,70,140,0.08)" }}>
-        <div className="flex items-start justify-between gap-4 mb-3">
-          <div>
-            <div className="text-xs font-medium mb-0.5" style={{ color: "var(--muted-foreground)" }}>До начала роли</div>
-            <div className="text-2xl font-bold tabular-nums" style={{ color: "var(--foreground)" }}>
-              {daysLeft} {daysLeft === 1 ? "день" : daysLeft < 5 ? "дня" : "дней"}
-            </div>
-          </div>
-          <div className="text-xs font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>10 апреля</div>
-        </div>
-        <div className="h-1.5 rounded-full overflow-hidden mb-4" style={{ background: "var(--secondary)" }}>
-          <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: "var(--accent)" }} />
-        </div>
-        <div style={{ borderTop: "1px solid var(--border)" }}>
-          <JourneyTimeline />
-        </div>
+        <JourneyTimeline />
       </div>
     );
   }

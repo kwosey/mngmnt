@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { JOURNEY_STAGES, getActiveStageId } from "@/lib/journey";
+import {
+  JOURNEY_STAGES,
+  getActiveStageId,
+  getRoleStartDate,
+  setRoleStartDate,
+  addDays,
+  formatRuDate,
+} from "@/lib/journey";
 import {
   getStageTodos,
   addStageTodo,
@@ -9,6 +16,23 @@ import {
   deleteStageTodo,
   type StageTodo,
 } from "@/lib/storage";
+
+function pluralDays(n: number): string {
+  const abs = Math.abs(n);
+  if (abs % 10 === 1 && abs % 100 !== 11) return `${abs} день`;
+  if (abs % 10 >= 2 && abs % 10 <= 4 && (abs % 100 < 10 || abs % 100 >= 20)) return `${abs} дня`;
+  return `${abs} дней`;
+}
+
+function daysUntil(d: Date): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(d);
+  target.setHours(0, 0, 0, 0);
+  return Math.round((target.getTime() - today.getTime()) / 86400000);
+}
+
+// ─── Stage todos ──────────────────────────────────────────────────────────────
 
 function StageTodos({ stageId }: { stageId: string }) {
   const [todos, setTodos] = useState<StageTodo[]>([]);
@@ -35,11 +59,6 @@ function StageTodos({ stageId }: { stageId: string }) {
     setAdding(false);
   }
 
-  function startEdit(todo: StageTodo) {
-    setEditingId(todo.id);
-    setEditText(todo.text);
-  }
-
   function commitEdit(id: string) {
     const text = editText.trim();
     if (!text) {
@@ -63,7 +82,7 @@ function StageTodos({ stageId }: { stageId: string }) {
         <div key={todo.id} className="flex items-start gap-1.5 mb-1">
           <button
             onClick={() => handleToggle(todo.id, !todo.done)}
-            className="mt-0.5 shrink-0 w-3.5 h-3.5 rounded flex items-center justify-center transition-opacity"
+            className="mt-0.5 shrink-0 w-3.5 h-3.5 rounded flex items-center justify-center"
             style={{
               border: "1.5px solid var(--border)",
               background: todo.done ? "var(--accent)" : "transparent",
@@ -92,7 +111,7 @@ function StageTodos({ stageId }: { stageId: string }) {
             />
           ) : (
             <span
-              onClick={() => startEdit(todo)}
+              onClick={() => { setEditingId(todo.id); setEditText(todo.text); }}
               className="flex-1 text-xs cursor-text leading-snug"
               style={{
                 color: todo.done ? "var(--muted-foreground)" : "var(--foreground)",
@@ -136,8 +155,53 @@ function StageTodos({ stageId }: { stageId: string }) {
   );
 }
 
+// ─── Timeline ─────────────────────────────────────────────────────────────────
+
 export function JourneyTimeline() {
+  const [roleStart, setRoleStart] = useState<Date>(() => new Date("2026-04-10T00:00:00"));
+  const [editingDate, setEditingDate] = useState<string | null>(null);
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setRoleStart(getRoleStartDate());
+  }, []);
+
+  useEffect(() => {
+    if (editingDate) dateInputRef.current?.focus();
+  }, [editingDate]);
+
   const activeId = getActiveStageId();
+
+  // Compute display date for each stage
+  function stageDate(stageId: string): Date {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (stageId === "preparation") return today;
+    const offsets: Record<string, number> = {
+      start: 0,
+      diagnosis: 1,
+      focus: 31,
+      change: 61,
+    };
+    return addDays(roleStart, offsets[stageId] ?? 0);
+  }
+
+  function handleDateChange(stageId: string, value: string) {
+    if (!value) return;
+    const newDate = new Date(value + "T00:00:00");
+    // All editable stages are offset from roleStart — translate back
+    const offsets: Record<string, number> = {
+      start: 0,
+      diagnosis: 1,
+      focus: 31,
+      change: 61,
+    };
+    const offset = offsets[stageId] ?? 0;
+    const newRoleStart = addDays(newDate, -offset);
+    setRoleStartDate(newRoleStart);
+    setRoleStart(newRoleStart);
+    setEditingDate(null);
+  }
 
   return (
     <div className="pt-4 pb-1">
@@ -152,6 +216,9 @@ export function JourneyTimeline() {
           {JOURNEY_STAGES.map((stage, i) => {
             const isActive = stage.id === activeId;
             const isPast = JOURNEY_STAGES.findIndex(s => s.id === activeId) > i;
+            const date = stageDate(stage.id);
+            const remaining = stage.id !== "preparation" ? daysUntil(date) : null;
+            const isEditable = stage.id !== "preparation";
 
             return (
               <div key={stage.id} className="relative flex gap-4 pb-6 last:pb-0">
@@ -177,15 +244,52 @@ export function JourneyTimeline() {
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <div
-                    className="text-[10px] font-medium mb-0.5 uppercase tracking-wide"
-                    style={{ color: isActive ? "var(--accent)" : "var(--border)" }}
-                  >
-                    {stage.period}
+                  {/* Date row */}
+                  <div className="flex items-center justify-between gap-2">
+                    {/* Date label */}
+                    {editingDate === stage.id ? (
+                      <input
+                        ref={dateInputRef}
+                        type="date"
+                        defaultValue={date.toISOString().split("T")[0]}
+                        onChange={e => handleDateChange(stage.id, e.target.value)}
+                        onBlur={() => setEditingDate(null)}
+                        className="text-[10px] font-medium uppercase tracking-wide bg-transparent outline-none"
+                        style={{ color: "var(--accent)", borderBottom: "1px solid var(--accent)", width: "120px" }}
+                      />
+                    ) : (
+                      <span
+                        className="text-[10px] font-medium uppercase tracking-wide"
+                        style={{
+                          color: isActive ? "var(--accent)" : "var(--border)",
+                          cursor: isEditable ? "pointer" : "default",
+                        }}
+                        onClick={() => isEditable && setEditingDate(stage.id)}
+                        title={isEditable ? "Изменить дату" : undefined}
+                      >
+                        {formatRuDate(date)}
+                      </span>
+                    )}
+
+                    {/* Days remaining */}
+                    {remaining !== null && remaining > 0 && (
+                      <span
+                        className="text-[10px] font-medium tabular-nums shrink-0"
+                        style={{ color: isActive ? "var(--accent)" : "var(--muted-foreground)", opacity: isPast ? 0 : 1 }}
+                      >
+                        через {pluralDays(remaining)}
+                      </span>
+                    )}
+                    {remaining !== null && remaining <= 0 && !isPast && isActive && (
+                      <span className="text-[10px] font-medium shrink-0" style={{ color: "var(--accent)" }}>
+                        активен
+                      </span>
+                    )}
                   </div>
 
+                  {/* Stage name */}
                   <div
-                    className="text-sm font-semibold leading-snug"
+                    className="text-sm font-semibold leading-snug mt-0.5"
                     style={{
                       color: isActive ? "var(--foreground)" : "var(--muted-foreground)",
                       opacity: isPast ? 0.5 : 1,
@@ -194,6 +298,7 @@ export function JourneyTimeline() {
                     {stage.label}
                   </div>
 
+                  {/* Description */}
                   <div
                     className="text-xs mt-0.5"
                     style={{
