@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { concepts } from "@/lib/data";
 import { getLearnedConcepts, getBookmarks, addBookmark, deleteBookmark } from "@/lib/storage";
 import type { Bookmark } from "@/lib/storage";
+import { JourneyTimeline } from "@/components/journey-timeline";
+import { getRoleDay } from "@/lib/journey";
 
 const ROLE_START = new Date("2026-04-10T00:00:00");
 
@@ -35,16 +37,9 @@ const PHASES = [
   },
 ];
 
-function getRoleDay() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const start = new Date(ROLE_START);
-  start.setHours(0, 0, 0, 0);
-  return Math.floor((today.getTime() - start.getTime()) / 86400000);
-}
-
 function JourneyBanner() {
   const day = getRoleDay();
+  const [open, setOpen] = useState(false);
 
   if (day < 0) {
     const daysLeft = -day;
@@ -52,7 +47,7 @@ function JourneyBanner() {
     const elapsed = totalPre - daysLeft;
     const pct = Math.max(0, Math.min(100, Math.round((elapsed / totalPre) * 100)));
     return (
-      <Link href="/concept/first-90-days" className="block mb-5 animate-in rounded-[20px] p-5 group" style={{ background: "var(--card)", boxShadow: "0 2px 20px 0 rgba(80,70,140,0.08)" }}>
+      <div className="mb-5 animate-in rounded-[20px] p-5" style={{ background: "var(--card)", boxShadow: "0 2px 20px 0 rgba(80,70,140,0.08)" }}>
         <div className="flex items-start justify-between gap-4 mb-3">
           <div>
             <div className="text-xs font-medium mb-0.5" style={{ color: "var(--muted-foreground)" }}>До начала роли</div>
@@ -60,9 +55,18 @@ function JourneyBanner() {
               {daysLeft} {daysLeft === 1 ? "день" : daysLeft < 5 ? "дня" : "дней"}
             </div>
           </div>
-          <div className="text-right shrink-0">
-            <div className="text-xs font-medium mb-0.5" style={{ color: "var(--muted-foreground)" }}>10 апреля</div>
-            <div className="text-sm font-semibold" style={{ color: "var(--accent)" }}>Старт →</div>
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            <div className="text-right">
+              <div className="text-xs font-medium mb-0.5" style={{ color: "var(--muted-foreground)" }}>10 апреля</div>
+              <Link href="/concept/first-90-days" className="text-sm font-semibold hover:opacity-70 transition-opacity" style={{ color: "var(--accent)" }}>Старт →</Link>
+            </div>
+            <button
+              onClick={() => setOpen(v => !v)}
+              className="text-xs px-2.5 py-1 rounded-lg font-medium transition-opacity hover:opacity-70"
+              style={{ background: "var(--secondary)", color: "var(--muted-foreground)" }}
+            >
+              {open ? "Скрыть" : "Путь"}
+            </button>
           </div>
         </div>
         <div className="h-1.5 rounded-full overflow-hidden mb-3" style={{ background: "var(--secondary)" }}>
@@ -71,18 +75,39 @@ function JourneyBanner() {
         <div className="text-xs" style={{ color: "var(--muted-foreground)" }}>
           Используй время — изучи команду, прочитай про <span className="font-medium" style={{ color: "var(--foreground)" }}>первые 90 дней</span>
         </div>
-      </Link>
+        {open && (
+          <div className="mt-4 animate-slide-down" style={{ borderTop: "1px solid var(--border)" }}>
+            <JourneyTimeline />
+          </div>
+        )}
+      </div>
     );
   }
 
   if (day >= 90) {
     return (
-      <div className="block mb-5 animate-in rounded-[20px] p-5" style={{ background: "var(--card)", boxShadow: "0 2px 20px 0 rgba(80,70,140,0.08)" }}>
-        <div className="text-xs font-medium mb-1" style={{ color: "var(--muted-foreground)" }}>Первые 90 дней</div>
-        <div className="text-base font-semibold" style={{ color: "#22c55e" }}>Пройдены ✓</div>
-        <div className="h-1.5 rounded-full mt-3 overflow-hidden" style={{ background: "var(--secondary)" }}>
+      <div className="mb-5 animate-in rounded-[20px] p-5" style={{ background: "var(--card)", boxShadow: "0 2px 20px 0 rgba(80,70,140,0.08)" }}>
+        <div className="flex items-start justify-between gap-4 mb-3">
+          <div>
+            <div className="text-xs font-medium mb-1" style={{ color: "var(--muted-foreground)" }}>Первые 90 дней</div>
+            <div className="text-base font-semibold" style={{ color: "#22c55e" }}>Пройдены</div>
+          </div>
+          <button
+            onClick={() => setOpen(v => !v)}
+            className="text-xs px-2.5 py-1 rounded-lg font-medium transition-opacity hover:opacity-70 shrink-0"
+            style={{ background: "var(--secondary)", color: "var(--muted-foreground)" }}
+          >
+            {open ? "Скрыть" : "Путь"}
+          </button>
+        </div>
+        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--secondary)" }}>
           <div className="h-full rounded-full" style={{ width: "100%", background: "#22c55e" }} />
         </div>
+        {open && (
+          <div className="mt-4 animate-slide-down" style={{ borderTop: "1px solid var(--border)" }}>
+            <JourneyTimeline />
+          </div>
+        )}
       </div>
     );
   }
@@ -97,9 +122,18 @@ function JourneyBanner() {
           <div className="text-xs font-medium mb-0.5" style={{ color: "var(--muted-foreground)" }}>Сейчас</div>
           <div className="text-lg font-bold" style={{ color: phase.color }}>{phase.label}</div>
         </div>
-        <div className="text-right shrink-0">
-          <div className="text-xs font-medium mb-0.5" style={{ color: "var(--muted-foreground)" }}>из 90 дней</div>
-          <div className="text-2xl font-bold tabular-nums" style={{ color: "var(--foreground)" }}>День {day + 1}</div>
+        <div className="flex flex-col items-end gap-2 shrink-0">
+          <div className="text-right">
+            <div className="text-xs font-medium mb-0.5" style={{ color: "var(--muted-foreground)" }}>из 90 дней</div>
+            <div className="text-2xl font-bold tabular-nums" style={{ color: "var(--foreground)" }}>День {day + 1}</div>
+          </div>
+          <button
+            onClick={() => setOpen(v => !v)}
+            className="text-xs px-2.5 py-1 rounded-lg font-medium transition-opacity hover:opacity-70"
+            style={{ background: "var(--secondary)", color: "var(--muted-foreground)" }}
+          >
+            {open ? "Скрыть" : "Путь"}
+          </button>
         </div>
       </div>
       <div className="h-1.5 rounded-full overflow-hidden mb-3" style={{ background: "var(--secondary)" }}>
@@ -114,6 +148,11 @@ function JourneyBanner() {
         <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: phase.color }} />
         Концепт дня: {phase.conceptTitle} →
       </Link>
+      {open && (
+        <div className="mt-4 animate-slide-down" style={{ borderTop: "1px solid var(--border)" }}>
+          <JourneyTimeline />
+        </div>
+      )}
     </div>
   );
 }
