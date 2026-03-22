@@ -167,6 +167,63 @@ export function deleteStageTodo(stageId: string, id: string): void {
   saveStageTodos(stageId, getStageTodos(stageId).filter(t => t.id !== id));
 }
 
+// ─── Stage customizations (label / description overrides) ─────────────────────
+
+export function getStageCustomizations(): Record<string, { label?: string; description?: string }> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem("stage_customizations");
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function setStageCustomization(stageId: string, field: "label" | "description", value: string): void {
+  if (typeof window === "undefined") return;
+  const all = getStageCustomizations();
+  all[stageId] = { ...all[stageId], [field]: value };
+  localStorage.setItem("stage_customizations", JSON.stringify(all));
+}
+
+// ─── Preparation date override ────────────────────────────────────────────────
+
+export function getPreparationDateOverride(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("preparation_date");
+}
+
+export function setPreparationDateOverride(date: Date): void {
+  if (typeof window !== "undefined") {
+    localStorage.setItem("preparation_date", date.toISOString().split("T")[0]);
+  }
+}
+
+// ─── Custom stages ────────────────────────────────────────────────────────────
+
+export interface CustomStage {
+  id: string;
+  label: string;
+  description: string;
+  date: string; // YYYY-MM-DD
+}
+
+export function getCustomStages(): CustomStage[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem("custom_stages");
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveCustomStages(stages: CustomStage[]): void {
+  if (typeof window !== "undefined") {
+    localStorage.setItem("custom_stages", JSON.stringify(stages));
+  }
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function todayStr(): string {

@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { Header } from "@/components/Header";
 
 export const metadata: Metadata = {
-  title: "Management OS",
-  description: "Инструмент для осмысления управленческих ситуаций",
+  title: "Timeline",
+  description: "Таймлайн первых 90 дней",
 };
 
 export default function RootLayout({
@@ -17,7 +16,6 @@ export default function RootLayout({
     <html lang="ru" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
-          <Header />
           <div className="flex-1">{children}</div>
         </ThemeProvider>
       </body>

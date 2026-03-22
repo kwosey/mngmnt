@@ -14,7 +14,14 @@ import {
   addStageTodo,
   updateStageTodo,
   deleteStageTodo,
+  getStageCustomizations,
+  setStageCustomization,
+  getCustomStages,
+  saveCustomStages,
+  getPreparationDateOverride,
+  setPreparationDateOverride,
   type StageTodo,
+  type CustomStage,
 } from "@/lib/storage";
 
 function pluralDays(n: number): string {
@@ -159,49 +166,144 @@ function StageTodos({ stageId }: { stageId: string }) {
 
 export function JourneyTimeline() {
   const [roleStart, setRoleStart] = useState<Date>(() => new Date("2026-04-10T00:00:00"));
+  const [preparationDate, setPreparationDate] = useState<Date>(() => {
+    const d = new Date(); d.setHours(0, 0, 0, 0); return d;
+  });
   const [editingDate, setEditingDate] = useState<string | null>(null);
+  const [customizations, setCustomizations] = useState<Record<string, { label?: string; description?: string }>>({});
+  const [customStages, setCustomStages] = useState<CustomStage[]>([]);
+  const [editingField, setEditingField] = useState<{ stageId: string; field: "label" | "desc" } | null>(null);
+  const [fieldText, setFieldText] = useState("");
+  const [addingStage, setAddingStage] = useState(false);
+  const [newStageName, setNewStageName] = useState("");
+
   const dateInputRef = useRef<HTMLInputElement>(null);
+  const fieldInputRef = useRef<HTMLInputElement>(null);
+  const newStageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setRoleStart(getRoleStartDate());
+    const prepStr = getPreparationDateOverride();
+    if (prepStr) setPreparationDate(new Date(prepStr + "T00:00:00"));
+    setCustomizations(getStageCustomizations());
+    setCustomStages(getCustomStages());
   }, []);
 
   useEffect(() => {
     if (editingDate) dateInputRef.current?.focus();
   }, [editingDate]);
 
+  useEffect(() => {
+    if (editingField) fieldInputRef.current?.focus();
+  }, [editingField]);
+
+  useEffect(() => {
+    if (addingStage) newStageInputRef.current?.focus();
+  }, [addingStage]);
+
   const activeId = getActiveStageId();
 
-  // Compute display date for each stage
   function stageDate(stageId: string): Date {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (stageId === "preparation") return today;
-    const offsets: Record<string, number> = {
-      start: 0,
-      diagnosis: 1,
-      focus: 31,
-      change: 61,
-    };
+    if (stageId === "preparation") return preparationDate;
+    const custom = customStages.find(s => s.id === stageId);
+    if (custom) return new Date(custom.date + "T00:00:00");
+    const offsets: Record<string, number> = { start: 0, diagnosis: 1, focus: 31, change: 61 };
     return addDays(roleStart, offsets[stageId] ?? 0);
   }
 
   function handleDateChange(stageId: string, value: string) {
     if (!value) return;
     const newDate = new Date(value + "T00:00:00");
-    // All editable stages are offset from roleStart — translate back
-    const offsets: Record<string, number> = {
-      start: 0,
-      diagnosis: 1,
-      focus: 31,
-      change: 61,
-    };
-    const offset = offsets[stageId] ?? 0;
-    const newRoleStart = addDays(newDate, -offset);
+
+    if (stageId === "preparation") {
+      setPreparationDateOverride(newDate);
+      setPreparationDate(newDate);
+      setEditingDate(null);
+      return;
+    }
+
+    const isCustom = customStages.some(s => s.id === stageId);
+    if (isCustom) {
+      const updated = customStages.map(s => s.id === stageId ? { ...s, date: value } : s);
+      saveCustomStages(updated);
+      setCustomStages(updated);
+      setEditingDate(null);
+      return;
+    }
+
+    const offsets: Record<string, number> = { start: 0, diagnosis: 1, focus: 31, change: 61 };
+    const newRoleStart = addDays(newDate, -(offsets[stageId] ?? 0));
     setRoleStartDate(newRoleStart);
     setRoleStart(newRoleStart);
     setEditingDate(null);
   }
+
+  function commitFieldEdit(stageId: string, field: "label" | "desc") {
+    const text = fieldText.trim();
+    setEditingField(null);
+
+    const storageField = field === "label" ? "label" : "description";
+    const isCustom = customStages.some(s => s.id === stageId);
+
+    // Clearing label on a custom stage — delete it
+    if (!text && field === "label" && isCustom) {
+      const updated = customStages.filter(s => s.id !== stageId);
+      saveCustomStages(updated);
+      setCustomStages(updated);
+      return;
+    }
+
+    if (!text) return;
+
+    if (isCustom) {
+      const updated = customStages.map(s => s.id === stageId ? { ...s, [storageField]: text } : s);
+      saveCustomStages(updated);
+      setCustomStages(updated);
+    } else {
+      setStageCustomization(stageId, storageField as "label" | "description", text);
+      setCustomizations(prev => ({
+        ...prev,
+        [stageId]: { ...prev[stageId], [storageField]: text },
+      }));
+    }
+  }
+
+  function handleAddStage() {
+    const name = newStageName.trim();
+    setAddingStage(false);
+    setNewStageName("");
+    if (!name) return;
+
+    const defaultDate = addDays(new Date(), 30).toISOString().split("T")[0];
+    const newStage: CustomStage = {
+      id: `custom_${Date.now()}`,
+      label: name,
+      description: "",
+      date: defaultDate,
+    };
+    const updated = [...customStages, newStage];
+    saveCustomStages(updated);
+    setCustomStages(updated);
+  }
+
+  // Unified stage list: built-in + custom
+  const builtInDisplay = JOURNEY_STAGES.map(s => ({
+    id: s.id,
+    label: customizations[s.id]?.label ?? s.label,
+    description: customizations[s.id]?.description ?? s.description,
+    question: s.question,
+    isCustom: false as const,
+  }));
+
+  const customDisplay = customStages.map(s => ({
+    id: s.id,
+    label: s.label,
+    description: s.description,
+    question: "",
+    isCustom: true as const,
+  }));
+
+  const allStages = [...builtInDisplay, ...customDisplay];
 
   return (
     <div className="pt-4 pb-1">
@@ -213,12 +315,11 @@ export function JourneyTimeline() {
         />
 
         <div className="flex flex-col gap-0">
-          {JOURNEY_STAGES.map((stage, i) => {
+          {allStages.map((stage, i) => {
             const isActive = stage.id === activeId;
-            const isPast = JOURNEY_STAGES.findIndex(s => s.id === activeId) > i;
+            const isPast = !stage.isCustom && JOURNEY_STAGES.findIndex(s => s.id === activeId) > i;
             const date = stageDate(stage.id);
-            const remaining = stage.id !== "preparation" ? daysUntil(date) : null;
-            const isEditable = stage.id !== "preparation";
+            const remaining = daysUntil(date);
 
             return (
               <div key={stage.id} className="relative flex gap-4 pb-6 last:pb-0">
@@ -246,7 +347,6 @@ export function JourneyTimeline() {
                 <div className="flex-1 min-w-0">
                   {/* Date row */}
                   <div className="flex items-center justify-between gap-2">
-                    {/* Date label */}
                     {editingDate === stage.id ? (
                       <input
                         ref={dateInputRef}
@@ -262,32 +362,31 @@ export function JourneyTimeline() {
                         className="text-[10px] font-medium uppercase tracking-wide"
                         style={{
                           color: isActive ? "var(--accent)" : "var(--border)",
-                          cursor: isEditable ? "pointer" : "default",
+                          cursor: "pointer",
                         }}
-                        onClick={() => isEditable && setEditingDate(stage.id)}
-                        title={isEditable ? "Изменить дату" : undefined}
+                        onClick={() => setEditingDate(stage.id)}
+                        title="Изменить дату"
                       >
                         {formatRuDate(date)}
                       </span>
                     )}
 
-                    {/* Days remaining */}
-                    {remaining !== null && remaining > 0 && (
+                    {remaining > 0 && !isPast && (
                       <span
                         className="text-[10px] font-medium tabular-nums shrink-0"
-                        style={{ color: isActive ? "var(--accent)" : "var(--muted-foreground)", opacity: isPast ? 0 : 1 }}
+                        style={{ color: isActive ? "var(--accent)" : "var(--muted-foreground)" }}
                       >
                         через {pluralDays(remaining)}
                       </span>
                     )}
-                    {remaining !== null && remaining <= 0 && !isPast && isActive && (
+                    {remaining <= 0 && isActive && (
                       <span className="text-[10px] font-medium shrink-0" style={{ color: "var(--accent)" }}>
                         активен
                       </span>
                     )}
                   </div>
 
-                  {/* Stage name */}
+                  {/* Stage name — editable */}
                   <div
                     className="text-sm font-semibold leading-snug mt-0.5"
                     style={{
@@ -295,10 +394,31 @@ export function JourneyTimeline() {
                       opacity: isPast ? 0.5 : 1,
                     }}
                   >
-                    {stage.label}
+                    {editingField?.stageId === stage.id && editingField.field === "label" ? (
+                      <input
+                        ref={fieldInputRef}
+                        value={fieldText}
+                        onChange={e => setFieldText(e.target.value)}
+                        onBlur={() => commitFieldEdit(stage.id, "label")}
+                        onKeyDown={e => {
+                          if (e.key === "Enter") commitFieldEdit(stage.id, "label");
+                          if (e.key === "Escape") setEditingField(null);
+                        }}
+                        className="w-full bg-transparent outline-none text-sm font-semibold"
+                        style={{ color: "var(--foreground)", borderBottom: "1px solid var(--accent)" }}
+                      />
+                    ) : (
+                      <span
+                        className="cursor-text"
+                        onClick={() => { setEditingField({ stageId: stage.id, field: "label" }); setFieldText(stage.label); }}
+                        title="Изменить название"
+                      >
+                        {stage.label}
+                      </span>
+                    )}
                   </div>
 
-                  {/* Description */}
+                  {/* Description — editable */}
                   <div
                     className="text-xs mt-0.5"
                     style={{
@@ -306,28 +426,70 @@ export function JourneyTimeline() {
                       opacity: isPast ? 0.5 : isActive ? 1 : 0.75,
                     }}
                   >
-                    {stage.description}
+                    {editingField?.stageId === stage.id && editingField.field === "desc" ? (
+                      <input
+                        ref={fieldInputRef}
+                        value={fieldText}
+                        onChange={e => setFieldText(e.target.value)}
+                        onBlur={() => commitFieldEdit(stage.id, "desc")}
+                        onKeyDown={e => {
+                          if (e.key === "Enter") commitFieldEdit(stage.id, "desc");
+                          if (e.key === "Escape") setEditingField(null);
+                        }}
+                        className="w-full bg-transparent outline-none text-xs"
+                        style={{ color: "var(--muted-foreground)", borderBottom: "1px solid var(--border)" }}
+                      />
+                    ) : (
+                      <span
+                        className="cursor-text"
+                        onClick={() => { setEditingField({ stageId: stage.id, field: "desc" }); setFieldText(stage.description); }}
+                        title="Изменить описание"
+                      >
+                        {stage.description || <span style={{ opacity: 0.35 }}>Добавить описание...</span>}
+                      </span>
+                    )}
                   </div>
-
-                  {/* Reflection question — only for active stage */}
-                  {isActive && (
-                    <div
-                      className="mt-2 text-xs italic px-3 py-2 rounded-xl"
-                      style={{
-                        background: "var(--secondary)",
-                        color: "var(--muted-foreground)",
-                        borderLeft: "2px solid var(--accent)",
-                      }}
-                    >
-                      {stage.question}
-                    </div>
-                  )}
 
                   <StageTodos stageId={stage.id} />
                 </div>
               </div>
             );
           })}
+
+          {/* Add new milestone */}
+          {addingStage ? (
+            <div className="relative flex gap-4 pb-2 mt-2">
+              <div className="relative z-10 flex-shrink-0 mt-0.5">
+                <div
+                  className="w-3.5 h-3.5 rounded-full"
+                  style={{ background: "var(--secondary)", border: "1.5px solid var(--border)" }}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <input
+                  ref={newStageInputRef}
+                  value={newStageName}
+                  onChange={e => setNewStageName(e.target.value)}
+                  onBlur={handleAddStage}
+                  onKeyDown={e => {
+                    if (e.key === "Enter") handleAddStage();
+                    if (e.key === "Escape") { setAddingStage(false); setNewStageName(""); }
+                  }}
+                  placeholder="Название вехи..."
+                  className="w-full bg-transparent outline-none text-sm font-semibold"
+                  style={{ color: "var(--foreground)", borderBottom: "1px solid var(--border)" }}
+                />
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => setAddingStage(true)}
+              className="mt-4 text-xs transition-opacity hover:opacity-70 flex items-center gap-1 ml-[26px]"
+              style={{ color: "var(--muted-foreground)" }}
+            >
+              <span style={{ fontSize: "14px", lineHeight: 1 }}>+</span> добавить веху
+            </button>
+          )}
         </div>
       </div>
     </div>
