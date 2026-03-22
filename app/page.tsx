@@ -56,10 +56,7 @@ function JourneyBanner() {
             </div>
           </div>
           <div className="flex flex-col items-end gap-2 shrink-0">
-            <div className="text-right">
-              <div className="text-xs font-medium mb-0.5" style={{ color: "var(--muted-foreground)" }}>10 апреля</div>
-              <Link href="/concept/first-90-days" className="text-sm font-semibold hover:opacity-70 transition-opacity" style={{ color: "var(--accent)" }}>Старт →</Link>
-            </div>
+            <div className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>10 апреля</div>
             <button
               onClick={() => setOpen(v => !v)}
               className="text-xs px-2.5 py-1 rounded-lg font-medium transition-opacity hover:opacity-70"
@@ -69,11 +66,8 @@ function JourneyBanner() {
             </button>
           </div>
         </div>
-        <div className="h-1.5 rounded-full overflow-hidden mb-3" style={{ background: "var(--secondary)" }}>
+        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--secondary)" }}>
           <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: "var(--accent)" }} />
-        </div>
-        <div className="text-xs" style={{ color: "var(--muted-foreground)" }}>
-          Используй время — изучи команду, прочитай про <span className="font-medium" style={{ color: "var(--foreground)" }}>первые 90 дней</span>
         </div>
         {open && (
           <div className="mt-4 animate-slide-down" style={{ borderTop: "1px solid var(--border)" }}>
