@@ -42,7 +42,10 @@ function StageTodos({ stageId }: { stageId: string }) {
 
   function commitEdit(id: string) {
     const text = editText.trim();
-    if (text) {
+    if (!text) {
+      deleteStageTodo(stageId, id);
+      setTodos(prev => prev.filter(t => t.id !== id));
+    } else {
       updateStageTodo(stageId, id, { text });
       setTodos(prev => prev.map(t => t.id === id ? { ...t, text } : t));
     }
@@ -54,15 +57,10 @@ function StageTodos({ stageId }: { stageId: string }) {
     setTodos(prev => prev.map(t => t.id === id ? { ...t, done } : t));
   }
 
-  function handleDelete(id: string) {
-    deleteStageTodo(stageId, id);
-    setTodos(prev => prev.filter(t => t.id !== id));
-  }
-
   return (
     <div className="mt-2">
       {todos.map(todo => (
-        <div key={todo.id} className="flex items-start gap-1.5 group mb-1">
+        <div key={todo.id} className="flex items-start gap-1.5 mb-1">
           <button
             onClick={() => handleToggle(todo.id, !todo.done)}
             className="mt-0.5 shrink-0 w-3.5 h-3.5 rounded flex items-center justify-center transition-opacity"
@@ -105,14 +103,6 @@ function StageTodos({ stageId }: { stageId: string }) {
               {todo.text}
             </span>
           )}
-
-          <button
-            onClick={() => handleDelete(todo.id)}
-            className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-xs leading-none"
-            style={{ color: "var(--muted-foreground)" }}
-          >
-            ✕
-          </button>
         </div>
       ))}
 
