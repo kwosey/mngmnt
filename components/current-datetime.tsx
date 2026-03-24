@@ -2,33 +2,37 @@
 
 import { useEffect, useState } from "react";
 
-function format(date: Date) {
+function formatParts(date: Date) {
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = date.getFullYear();
   const weekday = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"][date.getDay()];
   const hours = String(date.getHours()).padStart(2, "0");
   const minutes = String(date.getMinutes()).padStart(2, "0");
-  return `${day}.${month}.${year}, ${weekday}. ${hours}:${minutes}`;
+  return {
+    date: `${day}.${month}.${year}, ${weekday}.`,
+    time: `${hours}:${minutes}`,
+  };
 }
 
 export function CurrentDatetime() {
-  const [text, setText] = useState("");
+  const [parts, setParts] = useState<{ date: string; time: string } | null>(null);
 
   useEffect(() => {
-    setText(format(new Date()));
-    const id = setInterval(() => setText(format(new Date())), 10_000);
+    setParts(formatParts(new Date()));
+    const id = setInterval(() => setParts(formatParts(new Date())), 10_000);
     return () => clearInterval(id);
   }, []);
 
-  if (!text) return <div className="mb-2" style={{ height: "20px" }} />;
+  if (!parts) return <div className="mb-2" style={{ height: "20px" }} />;
 
   return (
     <div
-      className="mb-2 text-xs"
-      style={{ color: "var(--primary)", paddingLeft: "0px" }}
+      className="mb-2 text-xs flex justify-between"
+      style={{ color: "var(--primary)" }}
     >
-      {text}
+      <span>{parts.date}</span>
+      <span>{parts.time}</span>
     </div>
   );
 }
