@@ -178,7 +178,8 @@ export function JourneyTimeline() {
   const [newStageName, setNewStageName] = useState("");
 
   const dateInputRef = useRef<HTMLInputElement>(null);
-  const fieldInputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  const fieldInputRef = useRef<HTMLInputElement>(null);
+  const fieldDescRef = useRef<HTMLTextAreaElement>(null);
   const newStageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -194,7 +195,9 @@ export function JourneyTimeline() {
   }, [editingDate]);
 
   useEffect(() => {
-    if (editingField) fieldInputRef.current?.focus();
+    if (!editingField) return;
+    if (editingField.field === "desc") fieldDescRef.current?.focus();
+    else fieldInputRef.current?.focus();
   }, [editingField]);
 
   useEffect(() => {
@@ -432,7 +435,7 @@ export function JourneyTimeline() {
                   >
                     {editingField?.stageId === stage.id && editingField.field === "desc" ? (
                       <textarea
-                        ref={fieldInputRef as React.RefObject<HTMLTextAreaElement>}
+                        ref={fieldDescRef}
                         value={fieldText}
                         onChange={e => setFieldText(e.target.value)}
                         onBlur={() => commitFieldEdit(stage.id, "desc")}
