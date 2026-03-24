@@ -17,12 +17,19 @@ export function AnchorPreview() {
   return (
     <Link href="/anchors" className="block mb-6 group" style={{ textDecoration: "none" }}>
       <div
-        className="transition-opacity group-hover:opacity-70"
-        style={{ paddingLeft: "26px" }}
+        className="rounded-lg transition-opacity group-hover:opacity-70"
+        style={{
+          paddingLeft: "16px",
+          paddingRight: "16px",
+          paddingTop: "12px",
+          paddingBottom: "12px",
+          borderLeft: "3px solid var(--primary)",
+          background: "color-mix(in srgb, var(--primary) 8%, transparent)",
+        }}
       >
         <span
-          className="text-[10px] font-medium uppercase tracking-wide block mb-1"
-          style={{ color: "var(--muted-foreground)" }}
+          className="text-[10px] font-semibold uppercase tracking-widest block mb-1.5"
+          style={{ color: "var(--primary)" }}
         >
           Сейчас держу в голове
         </span>
