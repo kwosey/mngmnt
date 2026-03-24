@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { getAnchors, addAnchor, deleteAnchor, type Anchor } from "@/lib/anchors";
+import { getAnchors, addAnchor, updateAnchor, deleteAnchor, type Anchor } from "@/lib/anchors";
 import { AnchorCard } from "@/components/anchor-card";
 
 export default function AnchorsPage() {
@@ -26,6 +26,11 @@ export default function AnchorsPage() {
     if (!text) return;
     const anchor = addAnchor(text);
     setAnchors((prev) => [...prev, anchor]);
+  }
+
+  function handleUpdate(id: string, text: string) {
+    updateAnchor(id, text);
+    setAnchors((prev) => prev.map((a) => (a.id === id ? { ...a, text } : a)));
   }
 
   function handleDelete(id: string) {
@@ -62,7 +67,7 @@ export default function AnchorsPage() {
         {/* List */}
         <div>
           {anchors.map((anchor) => (
-            <AnchorCard key={anchor.id} anchor={anchor} onDelete={handleDelete} />
+            <AnchorCard key={anchor.id} anchor={anchor} onUpdate={handleUpdate} onDelete={handleDelete} />
           ))}
         </div>
 

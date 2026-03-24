@@ -39,6 +39,10 @@ export function addAnchor(text: string): Anchor {
   return anchor;
 }
 
+export function updateAnchor(id: string, text: string): void {
+  saveAnchors(getAnchors().map((a) => (a.id === id ? { ...a, text } : a)));
+}
+
 export function deleteAnchor(id: string): void {
   saveAnchors(getAnchors().filter((a) => a.id !== id));
 }
