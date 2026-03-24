@@ -21,12 +21,12 @@ export function CurrentDatetime() {
     return () => clearInterval(id);
   }, []);
 
-  if (!text) return <div className="mb-6" style={{ height: "20px" }} />;
+  if (!text) return <div className="mb-2" style={{ height: "20px" }} />;
 
   return (
     <div
-      className="mb-6 text-xs"
-      style={{ color: "var(--muted-foreground)", paddingLeft: "26px" }}
+      className="mb-2 text-xs"
+      style={{ color: "var(--primary)", paddingLeft: "0px" }}
     >
       {text}
     </div>
