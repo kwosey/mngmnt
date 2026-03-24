@@ -2,23 +2,23 @@
 
 /* Light (default) */
 :root {
-  --background: #ECEEF5;
-  --foreground: #1a1a2e;
+  --background: #EEF5EF;
+  --foreground: #1a2e1f;
   --card: #ffffff;
-  --card-foreground: #1a1a2e;
-  --primary: #7C6FF7;
+  --card-foreground: #1a2e1f;
+  --primary: #2F9E6F;
   --primary-foreground: #ffffff;
-  --secondary: #f0f1f8;
-  --secondary-foreground: #1a1a2e;
-  --muted: #f0f1f8;
-  --muted-foreground: #8a8fa8;
-  --accent: #7C6FF7;
+  --secondary: #f0f8f3;
+  --secondary-foreground: #1a2e1f;
+  --muted: #f0f8f3;
+  --muted-foreground: #8aa893;
+  --accent: #2F9E6F;
   --accent-foreground: #ffffff;
   --destructive: #ef4444;
   --destructive-foreground: #fafafa;
-  --border: #e4e6f0;
-  --input: #e4e6f0;
-  --ring: #7C6FF7;
+  --border: #deeee6;
+  --input: #deeee6;
+  --ring: #2F9E6F;
   --radius: 1.25rem;
 }
 
@@ -28,41 +28,41 @@
   --foreground: #ededed;
   --card: #111111;
   --card-foreground: #ededed;
-  --primary: #9d8ff9;
+  --primary: #5ECFA0;
   --primary-foreground: #0a0a0a;
   --secondary: #1a1a1a;
   --secondary-foreground: #ededed;
   --muted: #1a1a1a;
   --muted-foreground: #737373;
-  --accent: #9d8ff9;
-  --accent-foreground: #ededed;
+  --accent: #5ECFA0;
+  --accent-foreground: #0a0a0a;
   --destructive: #ef4444;
   --destructive-foreground: #fafafa;
   --border: #262626;
   --input: #1a1a1a;
-  --ring: #9d8ff9;
+  --ring: #5ECFA0;
   --radius: 1.25rem;
 }
 
 /* Legacy .light alias */
 .light {
-  --background: #ECEEF5;
-  --foreground: #1a1a2e;
+  --background: #EEF5EF;
+  --foreground: #1a2e1f;
   --card: #ffffff;
-  --card-foreground: #1a1a2e;
-  --primary: #7C6FF7;
+  --card-foreground: #1a2e1f;
+  --primary: #2F9E6F;
   --primary-foreground: #ffffff;
-  --secondary: #f0f1f8;
-  --secondary-foreground: #1a1a2e;
-  --muted: #f0f1f8;
-  --muted-foreground: #8a8fa8;
-  --accent: #7C6FF7;
+  --secondary: #f0f8f3;
+  --secondary-foreground: #1a2e1f;
+  --muted: #f0f8f3;
+  --muted-foreground: #8aa893;
+  --accent: #2F9E6F;
   --accent-foreground: #ffffff;
   --destructive: #ef4444;
   --destructive-foreground: #fafafa;
-  --border: #e4e6f0;
-  --input: #e4e6f0;
-  --ring: #7C6FF7;
+  --border: #deeee6;
+  --input: #deeee6;
+  --ring: #2F9E6F;
   --radius: 1.25rem;
 }
 

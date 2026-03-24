@@ -179,6 +179,7 @@ export function JourneyTimeline() {
 
   const dateInputRef = useRef<HTMLInputElement>(null);
   const fieldInputRef = useRef<HTMLInputElement>(null);
+  const fieldDescRef = useRef<HTMLTextAreaElement>(null);
   const newStageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -194,7 +195,9 @@ export function JourneyTimeline() {
   }, [editingDate]);
 
   useEffect(() => {
-    if (editingField) fieldInputRef.current?.focus();
+    if (!editingField) return;
+    if (editingField.field === "desc") fieldDescRef.current?.focus();
+    else fieldInputRef.current?.focus();
   }, [editingField]);
 
   useEffect(() => {
@@ -420,32 +423,37 @@ export function JourneyTimeline() {
 
                   {/* Description — editable */}
                   <div
-                    className="text-xs mt-0.5"
+                    className="text-xs mt-1"
                     style={{
-                      color: "var(--muted-foreground)",
-                      opacity: isPast ? 0.5 : isActive ? 1 : 0.75,
+                      opacity: isPast ? 0.5 : 1,
+                      ...(stage.description && editingField?.stageId !== stage.id ? {
+                        borderLeft: "2px solid var(--accent)",
+                        paddingLeft: "8px",
+                        marginLeft: "1px",
+                      } : {}),
                     }}
                   >
                     {editingField?.stageId === stage.id && editingField.field === "desc" ? (
-                      <input
-                        ref={fieldInputRef}
+                      <textarea
+                        ref={fieldDescRef}
                         value={fieldText}
                         onChange={e => setFieldText(e.target.value)}
                         onBlur={() => commitFieldEdit(stage.id, "desc")}
                         onKeyDown={e => {
-                          if (e.key === "Enter") commitFieldEdit(stage.id, "desc");
                           if (e.key === "Escape") setEditingField(null);
                         }}
-                        className="w-full bg-transparent outline-none text-xs"
+                        rows={Math.max(2, fieldText.split("\n").length)}
+                        className="w-full bg-transparent outline-none text-xs resize-none"
                         style={{ color: "var(--muted-foreground)", borderBottom: "1px solid var(--border)" }}
                       />
                     ) : (
                       <span
-                        className="cursor-text"
+                        className="cursor-text whitespace-pre-wrap block"
+                        style={{ color: stage.description ? "var(--foreground)" : "var(--muted-foreground)", opacity: stage.description ? (isActive ? 0.75 : 0.6) : 0.35 }}
                         onClick={() => { setEditingField({ stageId: stage.id, field: "desc" }); setFieldText(stage.description); }}
                         title="Изменить описание"
                       >
-                        {stage.description || <span style={{ opacity: 0.35 }}>Добавить описание...</span>}
+                        {stage.description || "Добавить описание..."}
                       </span>
                     )}
                   </div>
