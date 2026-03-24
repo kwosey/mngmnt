@@ -24,11 +24,11 @@ export function CurrentDatetime() {
     return () => clearInterval(id);
   }, []);
 
-  if (!parts) return <div className="mb-2" style={{ height: "20px" }} />;
+  if (!parts) return <div className="mb-1" style={{ height: "20px" }} />;
 
   return (
     <div
-      className="mb-2 text-xs flex justify-between"
+      className="mb-1 text-xs flex justify-between"
       style={{ color: "var(--primary)" }}
     >
       <span>{parts.date}</span>
