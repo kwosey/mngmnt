@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { getAnchors, addAnchor, updateAnchor, deleteAnchor, type Anchor } from "@/lib/anchors";
+import { getAnchors, addAnchor, updateAnchor, deleteAnchor, cycleAnchorPriority, type Anchor } from "@/lib/anchors";
 import { AnchorCard } from "@/components/anchor-card";
 
 export default function AnchorsPage() {
@@ -25,12 +25,17 @@ export default function AnchorsPage() {
     setNewText("");
     if (!text) return;
     const anchor = addAnchor(text);
-    setAnchors((prev) => [...prev, anchor]);
+    setAnchors((prev) => [anchor, ...prev]);
   }
 
   function handleUpdate(id: string, text: string) {
     updateAnchor(id, text);
     setAnchors((prev) => prev.map((a) => (a.id === id ? { ...a, text } : a)));
+  }
+
+  function handleCyclePriority(id: string) {
+    const next = cycleAnchorPriority(id);
+    setAnchors((prev) => prev.map((a) => (a.id === id ? { ...a, priority: next } : a)));
   }
 
   function handleDelete(id: string) {
@@ -67,7 +72,7 @@ export default function AnchorsPage() {
         {/* List */}
         <div>
           {anchors.map((anchor) => (
-            <AnchorCard key={anchor.id} anchor={anchor} onUpdate={handleUpdate} onDelete={handleDelete} />
+            <AnchorCard key={anchor.id} anchor={anchor} onUpdate={handleUpdate} onDelete={handleDelete} onCyclePriority={handleCyclePriority} />
           ))}
         </div>
 
