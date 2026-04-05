@@ -103,7 +103,7 @@ export default function AnchorsPage() {
 
         {/* List */}
         <div>
-          {anchors.map((anchor) => (
+          {[...anchors].sort((a, b) => b.priority - a.priority).map((anchor) => (
             <AnchorCard key={anchor.id} anchor={anchor} onUpdate={handleUpdate} onDelete={handleDelete} onCyclePriority={handleCyclePriority} />
           ))}
         </div>
