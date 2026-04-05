@@ -69,16 +69,9 @@ export default function AnchorsPage() {
           Короткие мысли, которые держишь в голове прямо сейчас.
         </p>
 
-        {/* List */}
-        <div>
-          {anchors.map((anchor) => (
-            <AnchorCard key={anchor.id} anchor={anchor} onUpdate={handleUpdate} onDelete={handleDelete} onCyclePriority={handleCyclePriority} />
-          ))}
-        </div>
-
         {/* Add new */}
         {adding ? (
-          <div className="mt-4">
+          <div className="mb-4">
             <textarea
               ref={inputRef}
               value={newText}
@@ -101,12 +94,19 @@ export default function AnchorsPage() {
         ) : (
           <button
             onClick={() => setAdding(true)}
-            className="mt-5 text-xs transition-opacity hover:opacity-70 flex items-center gap-1"
+            className="mb-5 text-xs transition-opacity hover:opacity-70 flex items-center gap-1"
             style={{ color: "var(--muted-foreground)" }}
           >
             <span style={{ fontSize: "14px", lineHeight: 1 }}>+</span> добавить якорь
           </button>
         )}
+
+        {/* List */}
+        <div>
+          {anchors.map((anchor) => (
+            <AnchorCard key={anchor.id} anchor={anchor} onUpdate={handleUpdate} onDelete={handleDelete} onCyclePriority={handleCyclePriority} />
+          ))}
+        </div>
       </div>
     </main>
   );
